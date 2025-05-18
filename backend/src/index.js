@@ -13,12 +13,24 @@ const PORT = process.env.PORT;
 
 app.use(express.json());
 app.use(cookieParser());
+
+
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "https://chatty-chat-app-lo23.onrender.com",
+  "http://localhost:5173",
+];
+
 app.use(
   cors({
-    origin:
-      process.env.CLIENT_URL ||
-      "https://chat-app-chatty.netlify.app/login" ||
-      "http://localhost:5173",
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
   })
 );
